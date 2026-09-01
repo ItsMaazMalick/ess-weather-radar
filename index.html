@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Weather & Radar — Pakistan Live Radar & Satellite</title>
+  
+  <!-- Google Fonts: Poppins & DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=4.0">
+</head>
+<body class="wr-body">
+
+  <div id="app-container" class="wr-app-viewport">
+    
+    <!-- Full-Screen Interactive Leaflet Map -->
+    <div id="map" class="wr-map-fullscreen"></div>
+
+    <!-- Top Navigation Bar (Weather & Radar Theme) -->
+    <header class="wr-top-bar">
+      <div class="wr-top-left-group">
+        <button id="locate-me-btn" class="wr-circle-btn" title="My Location / GPS">
+          <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
+        <button id="search-toggle-btn" class="wr-circle-btn" title="Search Any Location / City / Sector">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
+      <!-- Center Logo Pill -->
+      <div class="wr-brand-pill" title="Earth Scan Systems Weather & Radar">
+        <span class="wr-brand-white">escan</span><span class="wr-brand-amp">&</span><span class="wr-brand-white">radar</span>
+      </div>
+
+      <div class="wr-top-right-group">
+        <button id="copy-share-btn" class="wr-circle-btn" title="Share Link">
+          <i class="fa-solid fa-share-nodes"></i>
+        </button>
+        <button id="info-btn" class="wr-circle-btn" title="Information / Weather Analysis">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Floating Location Search Overlay -->
+    <div id="search-container" class="wr-search-overlay hidden">
+      <div class="wr-search-box">
+        <i class="fa-solid fa-magnifying-glass wr-search-icon"></i>
+        <input type="text" id="search-input" placeholder="Search exact city, sector, or area (e.g. Rawat, Gulberg, F-10)..." autocomplete="off">
+        <button id="close-search-btn" class="wr-search-close-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="search-results-list" class="wr-search-results hidden"></div>
+    </div>
+
+    <!-- Right-Side Vertical Layer Toolbar (Earth Scan Systems Action Icons) -->
+    <aside class="wr-vertical-toolbar">
+      <button class="wr-layer-action-btn active" data-layer="composite" title="Radar & Satellite Clouds">
+        <i class="fa-solid fa-cloud-sun-rain"></i>
+      </button>
+      <button class="wr-layer-action-btn" data-layer="radar" title="Rain Doppler Radar">
+        <i class="fa-solid fa-cloud-showers-heavy"></i>
+      </button>
+      <button class="wr-layer-action-btn" data-layer="blockages" title="Road Blockages & Landslides (NHA / NDMA)">
+        <i class="fa-solid fa-road-barrier"></i>
+      </button>
+      <button class="wr-layer-action-btn" data-layer="floods" title="Flood Inundation & Submerged Highways">
+        <i class="fa-solid fa-water"></i>
+      </button>
+      <button class="wr-layer-action-btn" data-layer="temp" title="Temperature Heatmap">
+        <i class="fa-solid fa-temperature-half"></i>
+      </button>
+      <button class="wr-layer-action-btn" data-layer="wind" title="Wind Flow">
+        <i class="fa-solid fa-flag"></i>
+      </button>
+      <button class="wr-layer-action-btn" data-layer="lightning" title="Lightning & Storms">
+        <i class="fa-solid fa-bolt"></i>
+      </button>
+      <button id="snapshot-btn" class="wr-layer-action-btn wr-camera-btn" title="Export Animated GIF / Snapshot">
+        <i class="fa-solid fa-camera"></i>
+      </button>
+    </aside>
+
+    <!-- Zoom Earth Style Live Cursor Precipitation Probe -->
+    <div id="hover-probe-tooltip" class="wr-hover-probe-pill hidden"></div>
+
+    <!-- Floating Live Weather Analysis Modal / Drawer -->
+    <div id="info-drawer" class="wr-info-drawer hidden">
+      <div class="wr-drawer-header">
+        <div class="wr-drawer-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Pakistan Weather Situation</div>
+        <button id="close-info-drawer-btn" class="wr-close-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="wr-drawer-body">
+        <div class="wr-headline-box" id="national-headline-text">
+          Active convective rain cells over Murree, Rawalakot, Sialkot, and Hazara; cloudy over northern Pakistan.
+        </div>
+        <div class="wr-metric-strip">
+          <div class="wr-m-tile">
+            <span class="m-lbl">Target Point</span>
+            <span class="m-val" id="active-inspected-location">Islamabad (ICT)</span>
+          </div>
+          <div class="wr-m-tile">
+            <span class="m-lbl">Temp</span>
+            <span class="m-val" id="metric-temp">31.4 °C</span>
+          </div>
+          <div class="wr-m-tile">
+            <span class="m-lbl">Rain</span>
+            <span class="m-val" id="metric-precip">0.2 mm/h</span>
+          </div>
+          <div class="wr-m-tile">
+            <span class="m-lbl">Humidity</span>
+            <span class="m-val" id="metric-humidity">64%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Floating Time & Loop Controller Dock -->
+    <footer class="wr-bottom-dock">
+      <!-- 15 min / 30 min Interval Toggle -->
+      <div class="wr-interval-strip">
+        <button class="wr-interval-pill active" id="interval-15">15 min</button>
+        <button class="wr-interval-pill" id="interval-30">30 min</button>
+      </div>
+
+      <!-- Time Slider Row -->
+      <div class="wr-slider-row">
+        <span class="wr-time-readout" id="current-frame-time-pkt">1:10 pm</span>
+        <div class="wr-track-container">
+          <div class="wr-track-progress" id="timeline-progress-fill"></div>
+          <input type="range" id="timeline-slider" min="0" max="11" value="11" step="1" class="wr-slider-input">
+        </div>
+        <button id="play-pause-btn" class="wr-play-circle-btn" title="Play / Pause">
+          <i class="fa-solid fa-play" id="play-icon"></i>
+        </button>
+      </div>
+
+      <!-- Bottom Date Strip -->
+      <div class="wr-date-strip">
+        <button class="wr-date-pill" id="btn-24h">- 24 hrs</button>
+        <button class="wr-date-pill active" id="btn-now">now</button>
+        <button class="wr-date-pill" id="btn-today">today</button>
+        <button class="wr-date-pill" id="btn-tomorrow">tomorrow</button>
+        <button class="wr-date-pill" id="btn-thu">Thu</button>
+        <button class="wr-date-pill" id="btn-fri">Fri</button>
+      </div>
+    </footer>
+
+    <!-- Animated GIF Export Modal -->
+    <div id="snapshot-modal" class="modal-backdrop hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-film"></i> Export Weather & Radar Animated GIF</h3>
+          <button id="close-snapshot-modal-btn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="snapshot-preview-box" id="snapshot-preview-box">
+            <div class="snapshot-loading-spinner" id="gif-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Rendering real-time animated GIF...</div>
+            <img id="snapshot-preview-img" class="snapshot-img hidden" alt="Live Animated Weather GIF">
+          </div>
+          <div class="export-options-grid">
+            <button id="download-gif-btn" class="export-btn primary-export"><i class="fa-solid fa-download"></i> Download Animated GIF</button>
+            <button id="copy-share-btn-modal" class="export-btn"><i class="fa-solid fa-link"></i> Copy Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Main Application Script -->
+  <script src="app.js?v=4.0"></script>
+</body>
+</html>

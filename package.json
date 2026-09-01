@@ -1,0 +1,21 @@
+{
+  "name": "weather-radar-images",
+  "version": "1.0.0",
+  "description": "Real-time Weather Radar Image Fetcher & Interactive Animated Display",
+  "main": "app.js",
+  "scripts": {
+    "start": "python3 server.py",
+    "dev": "python3 server.py"
+  },
+  "keywords": [
+    "weather",
+    "radar",
+    "meteorology",
+    "rainviewer",
+    "leaflet",
+    "nowcasting",
+    "precipitation"
+  ],
+  "author": "",
+  "license": "MIT"
+}
