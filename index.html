@@ -26,7 +26,7 @@
     <!-- Full-Screen Interactive Leaflet Map -->
     <div id="map" class="wr-map-fullscreen"></div>
 
-    <!-- Top Navigation Bar (Weather & Radar Theme) -->
+    <!-- Top Navigation Bar (ESS Weather & Flood Intelligence) -->
     <header class="wr-top-bar">
       <div class="wr-top-left-group">
         <button id="locate-me-btn" class="wr-circle-btn" title="My Location / GPS">
@@ -35,22 +35,61 @@
         <button id="search-toggle-btn" class="wr-circle-btn" title="Search Any Location / City / Sector">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
+        <button id="theme-toggle-btn" class="wr-pill-toggle-btn" title="Day / Night / Auto Sun Mode">
+          <i class="fa-solid fa-sun" id="theme-icon"></i>
+          <span id="theme-label">Day</span>
+        </button>
       </div>
 
-      <!-- Center Logo Pill -->
-      <div class="wr-brand-pill" title="Earth Scan Systems Weather & Radar">
-        <span class="wr-brand-white">escan</span><span class="wr-brand-amp">&</span><span class="wr-brand-white">radar</span>
+      <!-- Center Logo & Title Pill -->
+      <div class="wr-brand-pill" title="ESS Weather & Flood Intelligence">
+        <div class="wr-brand-header-text">
+          <div class="wr-brand-main"><span class="wr-brand-accent">ESS</span> <span class="wr-brand-white">Weather & Flood Intelligence</span></div>
+          <div class="wr-brand-sub">Observe → Predict → Assess Impact → Act</div>
+        </div>
       </div>
 
       <div class="wr-top-right-group">
+        <button id="pmd-radar-toggle-btn" class="wr-pill-toggle-btn active" title="PMD Doppler Radar Coverage Cones (Islamabad, Lahore, Karachi)">
+          <i class="fa-solid fa-tower-broadcast"></i>
+          <span>PMD Cones</span>
+        </button>
         <button id="copy-share-btn" class="wr-circle-btn" title="Share Link">
           <i class="fa-solid fa-share-nodes"></i>
         </button>
-        <button id="info-btn" class="wr-circle-btn" title="Information / Weather Analysis">
-          <i class="fa-solid fa-circle-info"></i>
+        <button id="info-btn" class="wr-circle-btn" title="National Situation & Intelligence Dashboard">
+          <i class="fa-solid fa-chart-line"></i>
         </button>
       </div>
     </header>
+
+    <!-- 5 Analytical Modes Navigation Bar -->
+    <nav class="ess-mode-switcher-bar">
+      <button class="ess-mode-btn active" data-mode="weather">
+        <i class="fa-solid fa-cloud-sun"></i>
+        <span>A. WEATHER</span>
+      </button>
+      <button class="ess-mode-btn" data-mode="rainfall">
+        <i class="fa-solid fa-cloud-showers-water"></i>
+        <span>B. RAINFALL</span>
+      </button>
+      <button class="ess-mode-btn" data-mode="flood">
+        <i class="fa-solid fa-water"></i>
+        <span>C. FLOOD</span>
+      </button>
+      <button class="ess-mode-btn" data-mode="impact">
+        <i class="fa-solid fa-users-viewfinder"></i>
+        <span>D. IMPACT</span>
+      </button>
+      <button class="ess-mode-btn" data-mode="advisory">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>E. ADVISORY</span>
+      </button>
+      <button id="check-my-location-btn" class="ess-check-loc-btn" title="Inspect instant risk, rainfall & advice for your exact location">
+        <i class="fa-solid fa-crosshairs"></i>
+        <span>📍 CHECK MY LOCATION</span>
+      </button>
+    </nav>
 
     <!-- Floating Location Search Overlay -->
     <div id="search-container" class="wr-search-overlay hidden">
@@ -70,17 +109,23 @@
       <button class="wr-layer-action-btn" data-layer="radar" title="Rain Doppler Radar">
         <i class="fa-solid fa-cloud-showers-heavy"></i>
       </button>
+      <button class="wr-layer-action-btn" data-layer="rainfall_accum" title="Rainfall Accumulation (1h/6h/24h/72h)">
+        <i class="fa-solid fa-chart-column"></i>
+      </button>
       <button class="wr-layer-action-btn" data-layer="blockages" title="Road Blockages & Landslides (NHA / NDMA)">
         <i class="fa-solid fa-road-barrier"></i>
       </button>
       <button class="wr-layer-action-btn" data-layer="floods" title="Flood Inundation & Submerged Highways">
         <i class="fa-solid fa-water"></i>
       </button>
-      <button class="wr-layer-action-btn" data-layer="temp" title="Temperature Heatmap">
-        <i class="fa-solid fa-temperature-half"></i>
+      <button class="wr-layer-action-btn" data-layer="rivers" title="River Intelligence & Gauging Stations">
+        <i class="fa-solid fa-route"></i>
       </button>
-      <button class="wr-layer-action-btn" data-layer="wind" title="Wind Flow">
-        <i class="fa-solid fa-flag"></i>
+      <button class="wr-layer-action-btn" data-layer="dams" title="Reservoir & Dam Water Storage">
+        <i class="fa-solid fa-warehouse"></i>
+      </button>
+      <button class="wr-layer-action-btn" data-layer="agriculture" title="Agricultural Crop Exposure (Rice, Cotton, Maize)">
+        <i class="fa-solid fa-wheat-awn"></i>
       </button>
       <button class="wr-layer-action-btn" data-layer="lightning" title="Lightning & Storms">
         <i class="fa-solid fa-bolt"></i>
@@ -93,34 +138,14 @@
     <!-- Zoom Earth Style Live Cursor Precipitation Probe -->
     <div id="hover-probe-tooltip" class="wr-hover-probe-pill hidden"></div>
 
-    <!-- Floating Live Weather Analysis Modal / Drawer -->
+    <!-- Floating Comprehensive Decision Intelligence Drawer -->
     <div id="info-drawer" class="wr-info-drawer hidden">
       <div class="wr-drawer-header">
-        <div class="wr-drawer-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Pakistan Weather Situation</div>
+        <div class="wr-drawer-title"><i class="fa-solid fa-shield-halved"></i> ESS Decision Intelligence Dashboard</div>
         <button id="close-info-drawer-btn" class="wr-close-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="wr-drawer-body">
-        <div class="wr-headline-box" id="national-headline-text">
-          Active convective rain cells over Murree, Rawalakot, Sialkot, and Hazara; cloudy over northern Pakistan.
-        </div>
-        <div class="wr-metric-strip">
-          <div class="wr-m-tile">
-            <span class="m-lbl">Target Point</span>
-            <span class="m-val" id="active-inspected-location">Islamabad (ICT)</span>
-          </div>
-          <div class="wr-m-tile">
-            <span class="m-lbl">Temp</span>
-            <span class="m-val" id="metric-temp">31.4 °C</span>
-          </div>
-          <div class="wr-m-tile">
-            <span class="m-lbl">Rain</span>
-            <span class="m-val" id="metric-precip">0.2 mm/h</span>
-          </div>
-          <div class="wr-m-tile">
-            <span class="m-lbl">Humidity</span>
-            <span class="m-val" id="metric-humidity">64%</span>
-          </div>
-        </div>
+      <div class="wr-drawer-body" id="info-drawer-content">
+        <!-- Content dynamically populated by updateIntelligenceDashboard() -->
       </div>
     </div>
 
@@ -132,16 +157,38 @@
         <button class="wr-interval-pill" id="interval-30">30 min</button>
       </div>
 
-      <!-- Time Slider Row -->
+      <!-- Time Slider Row with 'NOW' Separation -->
       <div class="wr-slider-row">
         <span class="wr-time-readout" id="current-frame-time-pkt">1:10 pm</span>
         <div class="wr-track-container">
           <div class="wr-track-progress" id="timeline-progress-fill"></div>
+          <div class="wr-now-marker" id="timeline-now-marker"><span>NOW</span></div>
           <input type="range" id="timeline-slider" min="0" max="11" value="11" step="1" class="wr-slider-input">
         </div>
         <button id="play-pause-btn" class="wr-play-circle-btn" title="Play / Pause">
           <i class="fa-solid fa-play" id="play-icon"></i>
         </button>
+        <button id="speed-toggle-btn" class="wr-speed-pill" title="Playback Speed">1x</button>
+      </div>
+
+      <!-- AccuWeather / MSN Meteorological Legend Bar -->
+      <div class="wr-meteorological-legend">
+        <div class="wr-leg-group">
+          <span class="wr-leg-label">Rain (dBZ)</span>
+          <div class="wr-leg-bar rain-bar"></div>
+          <div class="wr-leg-steps">
+            <span>Light (15)</span>
+            <span>Mod (30)</span>
+            <span>Heavy (45)</span>
+            <span>Severe (60+)</span>
+          </div>
+        </div>
+        <div class="wr-leg-types">
+          <span class="type-pill rain">🌧️ Rain</span>
+          <span class="type-pill snow">❄️ Snow</span>
+          <span class="type-pill ice">🧊 Ice</span>
+          <span class="type-pill mix">🟣 Mix</span>
+        </div>
       </div>
 
       <!-- Bottom Date Strip -->
