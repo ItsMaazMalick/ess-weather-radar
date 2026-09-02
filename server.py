@@ -16,7 +16,9 @@ import math
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image, ImageDraw
 
-PORT = 3000
+# Runs behind the Node analytics server, which proxies /api/generate-gif here.
+# Override with PORT when running this service standalone.
+PORT = int(os.environ.get("PORT", 3001))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 RAINVIEWER_API_URL = "https://api.rainviewer.com/public/weather-maps.json"

@@ -1,11 +1,14 @@
 {
-  "name": "weather-radar-images",
-  "version": "1.0.0",
-  "description": "Real-time Weather Radar Image Fetcher & Interactive Animated Display",
-  "main": "app.js",
+  "name": "ess-weather-flood-intelligence",
+  "version": "2.0.0",
+  "description": "ESS Weather & Flood Intelligence — Observe, Predict, Assess Impact, Act. Real-time radar/satellite visualisation with rainfall accumulation, four-hazard flood risk analytics and rule-based public advisory for Pakistan.",
+  "main": "server/index.js",
   "scripts": {
-    "start": "python3 server.py",
-    "dev": "python3 server.py"
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "test": "node --test server/test/engine.test.js",
+    "gif-service": "PORT=3001 python3 server.py",
+    "start:all": "PORT=3001 python3 server.py & node server/index.js"
   },
   "keywords": [
     "weather",
@@ -17,5 +20,8 @@
     "precipitation"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }

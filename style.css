@@ -336,8 +336,30 @@ body {
   .ess-mode-switcher-bar {
     top: 60px;
     width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
     overflow-x: auto;
     justify-content: flex-start;
+    scroll-snap-type: x proximity;
+    /* Fades the trailing edge so a horizontally-scrollable row reads as
+       scrollable rather than as content abruptly clipped by the viewport. */
+    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+  }
+
+  .ess-mode-btn {
+    font-size: 10px;
+    padding: 6px 10px;
+    scroll-snap-align: start;
+  }
+
+  .ess-mode-btn span {
+    white-space: nowrap;
+  }
+
+  .ess-check-loc-btn {
+    font-size: 10px;
+    padding: 6px 10px;
+    scroll-snap-align: start;
   }
 }
 
@@ -1194,6 +1216,16 @@ body {
   }
 }
 
+@keyframes slideUpSheet {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
 .wr-info-header {
   display: flex;
   align-items: center;
@@ -1520,13 +1552,30 @@ body {
     gap: 5px;
   }
 
+  /* At phone width there is no room for the full wordmark + tagline without
+     wrapping across several lines — which was inflating the whole top bar to
+     ~150px tall and pushing the mode switcher underneath it. Collapse to a
+     single-line monogram instead of letting it wrap. */
   .wr-brand-pill {
-    padding: 5px 12px;
-    gap: 2px;
+    padding: 6px 12px;
+    gap: 0;
+  }
+
+  .wr-brand-header-text {
+    flex-direction: row;
+  }
+
+  .wr-brand-sub {
+    display: none;
   }
 
   .wr-brand-white {
-    font-size: 14px;
+    display: none;
+  }
+
+  .wr-brand-main {
+    font-size: 15px;
+    white-space: nowrap;
   }
 
   .wr-brand-amp {
@@ -1591,13 +1640,34 @@ body {
     border-radius: 6px;
   }
 
+  /* Bottom sheet on phones: the map, top bar and mode switcher stay visible
+     above it at all times, instead of the drawer covering the entire screen
+     (as an absolute top-anchored panel it would need to, to fit its content,
+     since there is no room beside it at this width). */
   .wr-info-drawer {
-    top: 48px;
-    left: 6px;
-    right: 6px;
-    width: calc(100vw - 12px);
-    padding: 10px;
-    border-radius: 10px;
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 62vh;
+    padding: 14px 10px 10px;
+    border-radius: 16px 16px 0 0;
+    border-width: 1.5px 0 0 0;
+    animation: slideUpSheet 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .wr-info-drawer::before {
+    content: '';
+    position: sticky;
+    top: -14px;
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: 0 auto 10px;
+    border-radius: 4px;
+    background: rgba(246, 244, 236, 0.35);
   }
 
   .wr-metric-strip {
