@@ -1,0 +1,17 @@
+{
+  "name": "ess-weather-flood-intelligence-web",
+  "version": "2.1.0",
+  "description": "ESS Weather & Flood Intelligence — Next.js/Vercel deployment. Same risk engine and analytics as the Express version, ported to Next.js API routes for serverless hosting.",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --test backend/test/engine.test.js"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}

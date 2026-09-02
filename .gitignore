@@ -1,0 +1,9 @@
+node_modules/
+.next/
+__pycache__/
+*.pyc
+.claude/
+downloaded_radar_pngs/
+.env
+.env.local
+.DS_Store
