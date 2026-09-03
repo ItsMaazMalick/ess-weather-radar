@@ -24,7 +24,7 @@ const { fetchJson } = require('../lib/http');
 const { TtlCache } = require('../lib/cache');
 const { ConcurrencyLimiter } = require('../lib/limiter');
 
-const ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
+const ARCHIVE_URL = 'https://ess-weather-interpulation.vercel.app/api/v1/weather/historical';
 const cache = new TtlCache({ name: 'historical-climatology' });
 // Same provider/IP concurrency ceiling as the forecast API — cap independently
 // of it since these are large, slow queries best kept few at a time.
@@ -75,23 +75,22 @@ async function getHistoricalComparison(lat, lon, current24hMm, nowMs = Date.now(
     const start = new Date(Date.UTC(end.getUTCFullYear() - YEARS_OF_RECORD + 1, 0, 1));
 
     const url =
-      `${ARCHIVE_URL}?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}` +
-      `&start_date=${formatIsoDate(start)}&end_date=${formatIsoDate(end)}` +
-      `&daily=precipitation_sum&timezone=Asia%2FKarachi`;
+      `${ARCHIVE_URL}?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}` +
+      `&startDate=${formatIsoDate(start)}&endDate=${formatIsoDate(end)}`;
 
     const body = await limiter.run(() =>
-      fetchJson(url, { timeoutMs: 20000, retries: 1, label: 'Open-Meteo historical archive' })
+      fetchJson(url, { timeoutMs: 20000, retries: 1, label: 'Custom backend historical archive' })
     );
-    const times = body?.daily?.time || [];
-    const values = body?.daily?.precipitation_sum || [];
-    if (!times.length) throw new Error('Historical archive returned no data for this location');
+    const daily = body?.daily || [];
+    if (!daily.length) throw new Error('Historical archive returned no data for this location');
 
     const centerDoy = dayOfYear(now);
     const sample = [];
-    for (let i = 0; i < times.length; i++) {
-      const d = new Date(times[i] + 'T00:00:00Z');
-      if (withinSeasonalWindow(d, centerDoy) && typeof values[i] === 'number') {
-        sample.push({ date: times[i], mm: values[i] });
+    for (let i = 0; i < daily.length; i++) {
+      const rec = daily[i];
+      const d = new Date(rec.date + 'T00:00:00Z');
+      if (withinSeasonalWindow(d, centerDoy) && typeof rec.precipitationSum === 'number') {
+        sample.push({ date: rec.date, mm: rec.precipitationSum });
       }
     }
 

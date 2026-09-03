@@ -1,0 +1,337 @@
+{
+  "/api/v1/conditions": {
+    "get": {
+      "description": "Combined hourly (precipitation, soil moisture at 0-1cm/1-3cm/3-9cm depth) and current-conditions lookup for a coordinate in Pakistan or Uzbekistan. Cached and Cloudflare edge-accelerated; not spatially interpolated, since Open-Meteo already resolves it from its nearest NWP model grid point.",
+      "operationId": "ConditionsController_getConditions_v1",
+      "parameters": [
+        {
+          "name": "lat",
+          "required": true,
+          "in": "query",
+          "description": "Latitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 33.68,
+            "type": "number"
+          }
+        },
+        {
+          "name": "lon",
+          "required": true,
+          "in": "query",
+          "description": "Longitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 73.04,
+            "type": "number"
+          }
+        },
+        {
+          "name": "pastDays",
+          "required": false,
+          "in": "query",
+          "description": "Number of past days of hourly history to include",
+          "schema": {
+            "default": 4,
+            "example": 4,
+            "type": "number"
+          }
+        },
+        {
+          "name": "forecastDays",
+          "required": false,
+          "in": "query",
+          "description": "Number of forecast days of hourly data to include",
+          "schema": {
+            "default": 3,
+            "example": 3,
+            "type": "number"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Conditions retrieved successfully.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConditionsResponseDto"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Coordinates outside Pakistan/Uzbekistan coverage or invalid query parameters."
+        }
+      },
+      "summary": "Get hourly precipitation/soil-moisture series and current conditions",
+      "tags": [
+        "Conditions"
+      ]
+    }
+  },
+  "/api/v1/elevation": {
+    "get": {
+      "description": "Copernicus DEM GLO-90 terrain elevation lookup for a coordinate in Pakistan or Uzbekistan, used for slope/lapse-rate calculations. Cached and Cloudflare edge-accelerated.",
+      "operationId": "ElevationController_getElevation_v1",
+      "parameters": [
+        {
+          "name": "lat",
+          "required": true,
+          "in": "query",
+          "description": "Latitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 33.68,
+            "type": "number"
+          }
+        },
+        {
+          "name": "lon",
+          "required": true,
+          "in": "query",
+          "description": "Longitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 73.04,
+            "type": "number"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Elevation retrieved successfully.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ElevationResponseDto"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Coordinates outside Pakistan/Uzbekistan coverage or invalid query parameters."
+        }
+      },
+      "summary": "Get terrain elevation for a coordinate",
+      "tags": [
+        "Elevation"
+      ]
+    }
+  },
+  "/api/v1/weather/climatology": {
+    "get": {
+      "description": "ERA5 reanalysis precipitation baseline over a trailing N-year window (default 20 years) for a coordinate in Pakistan or Uzbekistan, used to compare current weather against normal seasonal levels.",
+      "operationId": "WeatherController_getClimatology_v1",
+      "parameters": [
+        {
+          "name": "lat",
+          "required": true,
+          "in": "query",
+          "description": "Latitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 33.68,
+            "type": "number"
+          }
+        },
+        {
+          "name": "lon",
+          "required": true,
+          "in": "query",
+          "description": "Longitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 73.04,
+            "type": "number"
+          }
+        },
+        {
+          "name": "years",
+          "required": false,
+          "in": "query",
+          "description": "Number of trailing years of ERA5 reanalysis history to use as the climatological baseline",
+          "schema": {
+            "default": 20,
+            "example": 20,
+            "type": "number"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Climatology baseline retrieved successfully.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClimatologyResponseDto"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Coordinates outside Pakistan/Uzbekistan coverage or invalid query parameters."
+        }
+      },
+      "summary": "Multi-year precipitation climatology (normal seasonal levels)",
+      "tags": [
+        "Weather"
+      ]
+    }
+  },
+  "/api/v1/weather/historical": {
+    "get": {
+      "description": "Retrieves past weather records for any location in Pakistan. Supports previous full year (e.g. year=2024), custom date ranges (startDate & endDate), daily/hourly aggregations, and climate summaries.",
+      "operationId": "WeatherController_getHistoricalWeather_v1",
+      "parameters": [
+        {
+          "name": "lat",
+          "required": true,
+          "in": "query",
+          "description": "Latitude within Pakistan (23.5°N - 37.5°N)",
+          "schema": {
+            "example": 31.5204,
+            "type": "number"
+          }
+        },
+        {
+          "name": "lon",
+          "required": true,
+          "in": "query",
+          "description": "Longitude within Pakistan (60.5°E - 78.0°E)",
+          "schema": {
+            "example": 74.3587,
+            "type": "number"
+          }
+        },
+        {
+          "name": "startDate",
+          "required": false,
+          "in": "query",
+          "description": "Start date in YYYY-MM-DD format (defaults to 365 days ago if not provided)",
+          "schema": {
+            "example": "2024-01-01",
+            "type": "string"
+          }
+        },
+        {
+          "name": "endDate",
+          "required": false,
+          "in": "query",
+          "description": "End date in YYYY-MM-DD format (defaults to 5 days ago / yesterday if not provided)",
+          "schema": {
+            "example": "2024-12-31",
+            "type": "string"
+          }
+        },
+        {
+          "name": "year",
+          "required": false,
+          "in": "query",
+          "description": "Shortcut to fetch full year historical data (e.g. 2024 will query 2024-01-01 to 2024-12-31)",
+          "schema": {
+            "example": 2024,
+            "type": "number"
+          }
+        },
+        {
+          "name": "aggregate",
+          "required": false,
+          "in": "query",
+          "description": "Aggregation granularity: daily (default), hourly, or summary only",
+          "schema": {
+            "default": "daily",
+            "example": "daily",
+            "type": "string",
+            "enum": [
+              "daily",
+              "hourly",
+              "summary"
+            ]
+          }
+        },
+        {
+          "name": "elevation",
+          "required": false,
+          "in": "query",
+          "description": "Target altitude in meters above sea level for 3D elevation adjustments",
+          "schema": {
+            "example": 217,
+            "type": "number"
+          }
+        },
+        {
+          "name": "interpolate",
+          "required": false,
+          "in": "query",
+          "description": "Allow spatial interpolation fallback if needed",
+          "schema": {
+            "default": true,
+            "example": true,
+            "type": "boolean"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Historical weather data retrieved successfully.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HistoricalWeatherResponseDto"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Coordinates outside Pakistan coverage, invalid dates, or invalid query parameters."
+        }
+      },
+      "summary": "Get previous and historical archive weather data for Pakistan coordinates",
+      "tags": [
+        "Weather"
+      ]
+    }
+  },
+  "/api/v1/weather/pin": {
+    "get": {
+      "description": "Direct, single-point current-conditions lookup (temperature, humidity, precipitation, rain, showers, cloud cover, wind speed) for Pakistan or Uzbekistan coordinates. Intended to replace frontend calls made directly against Open-Meteo, so pin lookups get cached and Cloudflare edge-accelerated instead of hitting Open-Meteo unprotected.",
+      "operationId": "WeatherController_getPinObservation_v1",
+      "parameters": [
+        {
+          "name": "lat",
+          "required": true,
+          "in": "query",
+          "description": "Latitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 33.68,
+            "type": "number"
+          }
+        },
+        {
+          "name": "lon",
+          "required": true,
+          "in": "query",
+          "description": "Longitude within Pakistan or Uzbekistan",
+          "schema": {
+            "example": 73.04,
+            "type": "number"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Pin observation retrieved successfully.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PinWeatherResponseDto"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Coordinates outside Pakistan/Uzbekistan coverage or invalid query parameters."
+        }
+      },
+      "summary": "Lightweight point observation for map-pin lookups",
+      "tags": [
+        "Weather"
+      ]
+    }
+  }
+}

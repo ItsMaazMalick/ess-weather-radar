@@ -1057,26 +1057,28 @@
   }
 
   async function fetchStationObservations() {
-    const lats = state.stations.map(s => s.lat).join(',');
-    const lons = state.stations.map(s => s.lon).join(',');
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,relative_humidity_2m,precipitation,rain,showers,cloud_cover,wind_speed_10m`;
-
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const results = Array.isArray(data) ? data : [data];
+      const results = await Promise.all(state.stations.map(async (stn) => {
+        const url = `https://ess-weather-interpulation.vercel.app/api/v1/weather/pin?lat=${stn.lat}&lon=${stn.lon}`;
+        try {
+          const res = await fetch(url);
+          if (!res.ok) return { current: {} };
+          return await res.json();
+        } catch (err) {
+          return { current: {} };
+        }
+      }));
 
       state.stations = state.stations.map((stn, idx) => {
         const cur = results[idx]?.current || {};
         const p = (cur.precipitation ?? 0) + (cur.rain ?? 0) + (cur.showers ?? 0);
         return {
           ...stn,
-          temp: Math.round(cur.temperature_2m ?? 30),
+          temp: Math.round(cur.temperature ?? 30),
           precip: p,
-          cloud: cur.cloud_cover ?? 0,
-          humidity: cur.relative_humidity_2m ?? 60,
-          sun: p <= 0.15 && (cur.cloud_cover ?? 0) < 50
+          cloud: cur.cloudCover ?? 0,
+          humidity: cur.humidity ?? 60,
+          sun: p <= 0.15 && (cur.cloudCover ?? 0) < 50
         };
       });
 
